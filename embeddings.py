@@ -1,16 +1,7 @@
-import logging
+from sentence_transformers import SentenceTransformer
 
 
 def main():
-    # PyTorch registra este aviso al importar Sentence Transformers en macOS.
-    redirects_logger = logging.getLogger("torch.distributed.elastic.multiprocessing.redirects")
-    redirects_logger.addFilter(
-        lambda record: record.getMessage()
-        != "NOTE: Redirects are currently not supported in MacOs."
-    )
-
-    from sentence_transformers import SentenceTransformer
-
     chunks = [
         "El perro es un animal doméstico.",
         "Vive con las personas.",
