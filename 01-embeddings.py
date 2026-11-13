@@ -1,33 +1,33 @@
-# Objetivo: convertir las tres oraciones de un párrafo en tres embeddings.
+# Goal: turn the three sentences in a paragraph into three embeddings.
 from sentence_transformers import SentenceTransformer
 
-# En este ejercicio, cada oración es un chunk. En un proyecto real,
-# el tamaño y los límites de los chunks dependen de los documentos.
+# Each sentence is one chunk. In a real project, chunk size and boundaries
+# depend on the documents and what you need to retrieve.
 chunks = [
-    "El perro es un animal doméstico.",
-    "Vive con las personas.",
-    "Necesita comida y agua.",
+    "The dog is a domesticated animal.",
+    "It lives with people.",
+    "It needs food and water.",
 ]
 
-# Sentence Transformers permite usar un modelo multilingüe preentrenado
-# que admite español y se puede ejecutar localmente.
+# Sentence Transformers loads a pretrained multilingual model that supports
+# English and runs locally.
 model = SentenceTransformer("sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
 embeddings = model.encode(chunks)
 
-# La matriz tiene una fila por oración. Mostramos solo cinco valores de cada vector.
-print(f"Forma de la matriz: {embeddings.shape}")
+# The matrix has one row per sentence. Show the first five values of each vector.
+print(f"Matrix shape: {embeddings.shape}")
 for chunk, vector in zip(chunks, embeddings):
     print(f"\n{chunk}")
-    print(f"Primeros 5 números: {vector[:5]}")
+    print(f"First 5 values: {vector[:5]}")
 
-# Ejemplo de salida. Los últimos decimales pueden variar según el equipo.
-# Forma de la matriz: (3, 384)
+# Sample output. The last few decimal places may vary by device.
+# Matrix shape: (3, 384)
 #
-# El perro es un animal doméstico.
-# Primeros 5 números: [ 0.2616387  -0.22603865 -0.21553874  0.36915547  0.14774287]
+# The dog is a domesticated animal.
+# First 5 values: [ 0.30211163 -0.07533839 -0.1931719   0.45517015  0.16289651]
 #
-# Vive con las personas.
-# Primeros 5 números: [ 0.28743172  0.06521122 -0.15082905 -0.07429039 -0.25089025]
+# It lives with people.
+# First 5 values: [ 0.42303404 -0.14984863 -0.34346724 -0.17564347 -0.11899172]
 #
-# Necesita comida y agua.
-# Primeros 5 números: [ 0.07610965 -0.01227246  0.16950226  0.19492432  0.04208274]
+# It needs food and water.
+# First 5 values: [ 0.18603589 -0.01928201  0.18876246  0.05051531  0.20163104]
