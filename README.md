@@ -10,9 +10,9 @@ Abre la carpeta del repositorio en VS Code con la extensión **Python** de Micro
 python3 --version
 python3 -m venv .venv
 .venv/bin/python -m pip install -r requirements.txt
-.venv/bin/python embeddings.py
+.venv/bin/python 01-embeddings.py
 ```
 
-También puedes abrir `embeddings.py` y pulsar **▶ Run Python File**. Si VS Code te pide un intérprete, usa **Python: Select Interpreter** y elige `.venv/bin/python`.
+También puedes abrir `01-embeddings.py` y pulsar **▶ Run Python File**. Si VS Code te pide un intérprete, usa **Python: Select Interpreter** y elige `.venv/bin/python`.
 
-La primera ejecución descarga el modelo. El cálculo se hace localmente en CPU. La salida muestra `Forma de la matriz: (3, 384)` y los primeros cinco valores de cada vector.
+La primera ejecución descarga el modelo. El cálculo se hace localmente. La salida muestra `Forma de la matriz: (3, 384)` y los primeros cinco valores de cada vector.
