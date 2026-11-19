@@ -32,39 +32,62 @@ Try another question, such as `Who does it live with?`. Press Enter on an empty 
 
 Higher scores mean greater similarity, not answer confidence. The script always ranks the available sentences, even for unrelated questions. This is the retrieval step: it returns existing text without generating an answer. Edit `chunks` to experiment with your own sentences, then save and rerun the script. No additional dependencies or API key are needed.
 
-## Exercise 03: persistent vector storage with PostgreSQL
+## Exercise 03: retrieval from a prepared PostgreSQL database
 
-This exercise stores text, model names, and 384-dimensional embeddings in PostgreSQL with the **pgvector** extension. Python embeds your question; PostgreSQL ranks the stored vectors using cosine distance. There is no approximate vector index yet, so this is exact search. The primary key and uniqueness constraint create ordinary indexes for data integrity, not vector similarity search.
+The database is prepared separately. `03-vector-store.py` only opens one connection, embeds each question, and calls PostgreSQL's `retrieve_chunks` function. It does not create tables or insert data. The function uses exact cosine search; approximate vector indexes are a later exercise.
 
-Start **Docker Desktop**, then run these commands in the VS Code terminal:
+### Explore in VS Code
+
+Install **PostgreSQL** by Microsoft (`ms-ossdata.vscode-pgsql`). Open the PostgreSQL sidebar and connect to the workspace profile **RAG local**; enter `rag_local` when prompted for its password. If you need to create the connection manually, choose **Add New Connection** and use:
+
+| Field | Value |
+| --- | --- |
+| Server | `localhost` |
+| Port (advanced options if needed) | `55432` |
+| Authentication | Password |
+| User | `rag` |
+| Password | `rag_local` |
+| Database | `rag_example` |
+| SSL | Disable (local lab only) |
+
+Choose **Save & Connect**. Expand the database's `public` schema to explore the `chunks` table and the `retrieve_chunks` function. Open `db/explore.sql`, select this connection, and execute a selected statement with **Cmd+Shift+E** on macOS. See [Microsoft's connection guide](https://learn.microsoft.com/en-us/azure/postgresql/development/vs-code-extension/quickstart-connect-query).
+
+`db/explore.sql` includes a cosine search using an existing sentence's vector. To search a new question in natural language, run:
+
+```bash
+.venv/bin/python 03-vector-store.py
+```
+
+Try `What does the dog need?`. Python creates the question embedding using the same model as the stored sentences. PostgreSQL compares it to the stored vectors. The `<=>` operator computes cosine distance (smaller is closer); `1 - distance` is cosine similarity (larger is closer). Similarity is not confidence. Press Enter on an empty prompt to exit.
+
+### One-time setup for a fresh checkout
+
+Start Docker Desktop, then run:
 
 ```bash
 cd ~/Projects/rag-example
 .venv/bin/python -m pip install -r requirements.txt
 docker compose up -d --wait
-.venv/bin/python 03-vector-store.py
+.venv/bin/python scripts/load-chunks.py
 ```
 
-The first run saves three chunks. Ask `What does the dog need?`, then press Enter on an empty prompt to exit. Run the script again: it reports that it is reusing saved chunks, without recalculating their embeddings. The model still loads to embed new questions.
-
-To verify that the database persists across restarts:
+Docker applies `db/schema.sql` automatically when initializing a new database volume. If you already have a volume from the previous version of exercise 03, apply the schema once without deleting your data:
 
 ```bash
-docker compose down
-docker compose up -d --wait
-.venv/bin/python 03-vector-store.py
+docker compose exec -T db psql -v ON_ERROR_STOP=1 -U rag -d rag_example < db/schema.sql
 ```
 
-Docker stores the database in a named volume that survives `docker compose down`. Stop the database with `docker compose down` when finished. Adding `--volumes` to that command **deletes the lab data**.
+You can also execute `db/schema.sql` from the VS Code database client. The schema creates the table and search function; `scripts/load-chunks.py` loads missing sample sentences and their 384-dimensional embeddings. Rerunning the loader preserves existing rows. To add data, edit its `chunks` list and rerun the loader. Removing a sentence from the list does not delete it from the database.
 
-Inspect the saved text and vector dimensions directly:
+### Files and persistence
 
-```bash
-docker compose exec db psql -U rag -d rag_example -c "SELECT id, content, vector_dims(embedding) AS dimensions FROM chunks;"
-```
+- `db/schema.sql`: table definition and cosine retrieval function.
+- `scripts/load-chunks.py`: separate data-loading step.
+- `03-vector-store.py`: interactive retrieval against the prepared database.
+- `db/explore.sql`: SQL examples for the database client.
 
-The example database is bound to your computer at `localhost:55432`; its published username/password (`rag` / `rag_local`) are for this local lab. Set `DATABASE_URL` to use another PostgreSQL server with pgvector installed and permission to enable the extension. Use the same embedding model for stored texts and questions.
+The local credentials above are for this lab. Set `DATABASE_URL` in the Python process to connect to another prepared PostgreSQL database with pgvector. The question and stored text must use the same embedding model.
 
-You can add sentences to `chunks` and rerun: only missing sentences are embedded and inserted. Previously saved sentences stay in the database even if removed from the Python list. Similarity scores are not confidence, and unrelated questions still return the nearest available chunks.
+Stop PostgreSQL with `docker compose down` and restart with `docker compose up -d --wait`. The named volume keeps your data. Adding `--volumes` to the stop command **deletes the lab data**.
 
-Next, with a larger dataset, we can add an HNSW index and compare approximate retrieval against this exact search. See the [pgvector documentation](https://github.com/pgvector/pgvector) for vector storage, cosine distance, and indexes.
+See the [pgvector documentation](https://github.com/pgvector/pgvector) for cosine distance and indexes.
