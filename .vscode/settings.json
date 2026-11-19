@@ -1,3 +1,19 @@
 {
-    "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python"
+    "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
+    "pgsql.connections": [
+        {
+            "id": "88c2ff6a-1944-4ae4-bd61-e17e00dc9224",
+            "profileName": "RAG local",
+            "server": "localhost",
+            "port": "55432",
+            "database": "rag_example",
+            "user": "rag",
+            "authenticationType": "SqlLogin",
+            "sslmode": "disable",
+            "groupId": "60F2066C-3065-4B43-A53B-EE935A4ABDA8",
+            "expiresOn": 0,
+            "password": "",
+            "sshPassword": ""
+        }
+    ]
 }
