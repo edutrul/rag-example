@@ -1,3 +1,14 @@
 {
-    "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python"
+    "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
+    "pgsql.connections": [
+        {
+            "id": "757dd119-50b7-4cb1-b9d2-25eac8c784f4",
+            "profileName": "RAG Example (proyecto)",
+            "server": "127.0.0.1",
+            "port": "55432",
+            "database": "rag_example",
+            "authenticationType": "SqlLogin",
+            "user": "rag"
+        }
+    ]
 }

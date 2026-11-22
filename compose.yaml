@@ -6,9 +6,11 @@ services:
       POSTGRES_USER: rag
       POSTGRES_PASSWORD: rag_local
     ports:
+      # Fixed local port: use the same VS Code connection on every machine.
       - "127.0.0.1:55432:5432"
     volumes:
       - vector_data:/var/lib/postgresql/data
+      - ./docker/init:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U rag -d rag_example"]
       interval: 2s

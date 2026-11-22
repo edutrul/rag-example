@@ -2,6 +2,37 @@
 
 An introductory RAG lab. The first exercise treats each of three English sentences as a chunk and turns it into a vector using the multilingual model `paraphrase-multilingual-MiniLM-L12-v2`.
 
+## Practicar PostgreSQL y pgvector desde cero
+
+Para practicar SQL directamente solo necesitas Git, Docker con Compose (Docker Desktop en macOS/Windows) y VS Code. Python no es necesario para esta parte.
+
+En otra máquina, con Docker iniciado:
+
+```bash
+git clone https://github.com/edutrul/rag-example.git
+cd rag-example
+docker compose up -d --wait
+```
+
+Si ya tienes el repositorio, entra en su carpeta, ejecuta `git pull --ff-only` y después `docker compose up -d --wait`.
+
+Al iniciar con un volumen vacío, PostgreSQL crea la base `rag_example` y el usuario `rag`. El archivo `docker/init/01-pgvector.sql` activa la extensión `vector`. No se crean tablas ni se insertan datos de práctica. Los scripts de inicialización se ejecutan solo la primera vez que se prepara un volumen vacío; en un volumen anterior sin la extensión, ejecuta `CREATE EXTENSION IF NOT EXISTS vector;` dentro de `rag_example`.
+
+Abre esta carpeta en VS Code e instala la extensión recomendada **PostgreSQL by Microsoft** (`ms-ossdata.vscode-pgsql`). El perfil **RAG Example (proyecto)** se incluye en `.vscode/settings.json`, así que viaja con el repositorio. Conéctate a ese perfil y escribe `rag_local` cuando solicite la contraseña. Abre un archivo SQL vacío para crear tus propias tablas y consultas; selecciona el SQL que quieras ejecutar y pulsa **Shift+Enter**.
+
+| Dato | Valor fijo |
+| --- | --- |
+| Servidor | `127.0.0.1` |
+| Puerto de tu computadora | `55432` |
+| Puerto dentro del contenedor | `5432` |
+| Base | `rag_example` |
+| Usuario | `rag` |
+| Contraseña del laboratorio local | `rag_local` |
+
+El puerto `55432` está fijado en `compose.yaml` y en el perfil de VS Code: no cambia entre arranques ni entre máquinas. Debe estar libre; si ya lo usa otro proceso, Compose mostrará un error en vez de elegir un puerto diferente. El servidor se publica solo en tu computadora (`127.0.0.1`).
+
+La configuración viaja por Git; los datos del volumen Docker se quedan en cada máquina. Para detener el laboratorio sin perder sus datos, ejecuta `docker compose down`. `docker compose down --volumes` elimina los datos del laboratorio y permite volver a empezar desde cero.
+
 ## Run on macOS
 
 Open the repository folder in VS Code with Microsoft's **Python** extension installed. Run these commands in the integrated terminal. The lab was tested with Python 3.14.
