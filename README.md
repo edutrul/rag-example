@@ -16,9 +16,24 @@ docker compose up -d --wait
 
 Si ya tienes el repositorio, entra en su carpeta, ejecuta `git pull --ff-only` y después `docker compose up -d --wait`.
 
-Al iniciar con un volumen vacío, PostgreSQL crea la base `rag_example` y el usuario `rag`. El archivo `docker/init/01-pgvector.sql` activa la extensión `vector`. No se crean tablas ni se insertan datos de práctica. Los scripts de inicialización se ejecutan solo la primera vez que se prepara un volumen vacío; en un volumen anterior sin la extensión, ejecuta `CREATE EXTENSION IF NOT EXISTS vector;` dentro de `rag_example`.
+Al iniciar con un volumen vacío, PostgreSQL crea la base `rag_example` y el usuario `rag`. El archivo `docker/init/01-pgvector.sql` activa la extensión `vector` en esa base. Además, `docker/init/02-practice-databases.sh` crea dos bases de práctica, cada una con una tabla vacía:
 
-Abre esta carpeta en VS Code e instala la extensión recomendada **PostgreSQL by Microsoft** (`ms-ossdata.vscode-pgsql`). El perfil **RAG Example (proyecto)** se incluye en `.vscode/settings.json`, así que viaja con el repositorio. Conéctate a ese perfil y escribe `rag_local` cuando solicite la contraseña. Abre un archivo SQL vacío para crear tus propias tablas y consultas; selecciona el SQL que quieras ejecutar y pulsa **Shift+Enter**.
+| Conexión de VS Code | Base | Tabla | Script SQL |
+| --- | --- | --- | --- |
+| Practica SQL | `practica_sql` | `public.registros`: `id` autoincremental, `nombre varchar(100)`, `fecha date`, `creado_en timestamp` | [01-practica-sql.sql](sql/01-practica-sql.sql) |
+| Practica vectorial | `practica_vectorial` | `public.vectores`: una columna `embedding vector(3)` | [02-practica-vectorial.sql](sql/02-practica-vectorial.sql) |
+
+Los scripts no insertan datos. `CREATE TABLE IF NOT EXISTS` permite volver a ejecutarlos sin borrar las tablas existentes; no modifica una tabla que ya exista con otra estructura.
+
+Los scripts de inicialización solo se ejecutan automáticamente al preparar un volumen vacío. Si ya tenías el laboratorio, después de `git pull --ff-only` y `docker compose up -d --wait`, crea las bases y aplica los dos scripts sin borrar tus datos:
+
+```bash
+docker compose exec -T db bash /docker-entrypoint-initdb.d/02-practice-databases.sh
+```
+
+Abre esta carpeta en VS Code e instala la extensión recomendada **PostgreSQL by Microsoft** (`ms-ossdata.vscode-pgsql`). Los perfiles del grupo **Laboratorio local** se incluyen en `.vscode/settings.json` con **Save Password** activado. La contraseña fija del laboratorio es `rag_local`: en una computadora nueva introdúcela y guárdala la primera vez que conectes cada perfil. VS Code la conserva en su almacén de credenciales para no pedirla en las siguientes conexiones. La configuración viaja por Git; las credenciales guardadas son locales a cada computadora. Si los perfiles no aparecen al actualizar, ejecuta **Developer: Reload Window** desde la paleta de comandos.
+
+Abre cada script con su conexión correspondiente. Para practicar consultas, abre un archivo SQL vacío, conecta a **Practica SQL** o **Practica vectorial**, selecciona el SQL que quieras ejecutar y pulsa **Shift+Enter**. La conexión **RAG Example (proyecto)** sigue disponible para los ejercicios Python.
 
 | Dato | Valor fijo |
 | --- | --- |
