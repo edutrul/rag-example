@@ -2,11 +2,11 @@
 
 An introductory RAG lab. The first exercise treats each of three English sentences as a chunk and turns it into a vector using the multilingual model `paraphrase-multilingual-MiniLM-L12-v2`.
 
-## Practicar PostgreSQL y pgvector desde cero
+## Practice PostgreSQL and pgvector from scratch
 
-Para practicar SQL directamente solo necesitas Git, Docker con Compose (Docker Desktop en macOS/Windows) y VS Code. Python no es necesario para esta parte.
+To practice SQL directly, you only need Git, Docker with Compose (Docker Desktop on macOS/Windows), and VS Code. Python is not required for this part.
 
-En otra máquina, con Docker iniciado:
+On another computer, with Docker running:
 
 ```bash
 git clone https://github.com/edutrul/rag-example.git
@@ -14,39 +14,39 @@ cd rag-example
 docker compose up -d --wait
 ```
 
-Si ya tienes el repositorio, entra en su carpeta, ejecuta `git pull --ff-only` y después `docker compose up -d --wait`.
+If you already have the repository, enter its folder, run `git pull --ff-only`, then `docker compose up -d --wait`.
 
-Al iniciar con un volumen vacío, PostgreSQL crea la base `rag_example` y el usuario `rag`. El archivo `docker/init/01-pgvector.sql` activa la extensión `vector` en esa base. Además, `docker/init/02-practice-databases.sh` crea dos bases de práctica, cada una con una tabla vacía:
+On the first start with an empty volume, PostgreSQL creates the `rag_example` database and the `rag` user. `docker/init/01-pgvector.sql` enables the `vector` extension in that database. `docker/init/02-practice-tables.sql` also creates two practice tables in `rag_example`, seeded with sample rows:
 
-| Conexión de VS Code | Base | Tabla | Script SQL |
-| --- | --- | --- | --- |
-| Practica SQL | `practica_sql` | `public.registros`: `id` autoincremental, `nombre varchar(100)`, `fecha date`, `creado_en timestamp` | [01-practica-sql.sql](sql/01-practica-sql.sql) |
-| Practica vectorial | `practica_vectorial` | `public.vectores`: una columna `embedding vector(3)` | [02-practica-vectorial.sql](sql/02-practica-vectorial.sql) |
+| Table | Columns |
+| --- | --- |
+| `public.simple_sql_practice` | auto-incrementing `id`, `content text`; seeded with three sample rows |
+| `public.simple_vector_practice` | auto-incrementing `id`, `content text`, `embedding vector(1536)`; empty |
 
-Los scripts no insertan datos. `CREATE TABLE IF NOT EXISTS` permite volver a ejecutarlos sin borrar las tablas existentes; no modifica una tabla que ya exista con otra estructura.
+`CREATE TABLE IF NOT EXISTS` lets the script run again without deleting existing tables, and the seed rows are inserted only if `simple_sql_practice` is empty, so re-running it does not duplicate data.
 
-Los scripts de inicialización solo se ejecutan automáticamente al preparar un volumen vacío. Si ya tenías el laboratorio, después de `git pull --ff-only` y `docker compose up -d --wait`, crea las bases y aplica los dos scripts sin borrar tus datos:
+Initialization scripts run automatically only when preparing an empty volume. If the lab is already installed, after `git pull --ff-only` and `docker compose up -d --wait`, apply the script without deleting your data:
 
 ```bash
-docker compose exec -T db bash /docker-entrypoint-initdb.d/02-practice-databases.sh
+docker compose exec -T db psql -U rag -d rag_example -f /docker-entrypoint-initdb.d/02-practice-tables.sql
 ```
 
-Abre esta carpeta en VS Code e instala la extensión recomendada **PostgreSQL by Microsoft** (`ms-ossdata.vscode-pgsql`). Los perfiles del grupo **Laboratorio local** se incluyen en `.vscode/settings.json` con **Save Password** activado. La contraseña fija del laboratorio es `rag_local`: en una computadora nueva introdúcela y guárdala la primera vez que conectes cada perfil. VS Code la conserva en su almacén de credenciales para no pedirla en las siguientes conexiones. La configuración viaja por Git; las credenciales guardadas son locales a cada computadora. Si los perfiles no aparecen al actualizar, ejecuta **Developer: Reload Window** desde la paleta de comandos.
+Open this folder in VS Code and install the recommended **PostgreSQL by Microsoft** extension (`ms-ossdata.vscode-pgsql`). Use a single connection named **Local PostgreSQL**, saved in **User Settings (Global)**: server `127.0.0.1`, port `55432` (under Advanced), Password authentication, user `rag`, password `rag_local`, and initial database `rag_example`. Enable **Save Password**. Create this connection once on each new computer; VS Code stores its password locally. Connection details are the same on every machine, as listed below. The project does not add Workspace connection profiles.
 
-Abre cada script con su conexión correspondiente. Para practicar consultas, abre un archivo SQL vacío, conecta a **Practica SQL** o **Practica vectorial**, selecciona el SQL que quieras ejecutar y pulsa **Shift+Enter**. La conexión **RAG Example (proyecto)** sigue disponible para los ejercicios Python.
+Under that connection, the practice tables live in `rag_example` alongside the Python exercises' `chunks` table. Open a new query against `rag_example`, select the SQL you want to run, and press **Shift+Enter**.
 
-| Dato | Valor fijo |
+| Setting | Fixed value |
 | --- | --- |
-| Servidor | `127.0.0.1` |
-| Puerto de tu computadora | `55432` |
-| Puerto dentro del contenedor | `5432` |
-| Base | `rag_example` |
-| Usuario | `rag` |
-| Contraseña del laboratorio local | `rag_local` |
+| Server | `127.0.0.1` |
+| Host port | `55432` |
+| Container port | `5432` |
+| Initial database | `rag_example` |
+| User | `rag` |
+| Local lab password | `rag_local` |
 
-El puerto `55432` está fijado en `compose.yaml` y en el perfil de VS Code: no cambia entre arranques ni entre máquinas. Debe estar libre; si ya lo usa otro proceso, Compose mostrará un error en vez de elegir un puerto diferente. El servidor se publica solo en tu computadora (`127.0.0.1`).
+Port `55432` is fixed in `compose.yaml`: use that same port in your VS Code connection on every computer. It must be available; if another process already uses it, Compose reports an error instead of selecting a different port. The server is published only on your computer (`127.0.0.1`).
 
-La configuración viaja por Git; los datos del volumen Docker se quedan en cada máquina. Para detener el laboratorio sin perder sus datos, ejecuta `docker compose down`. `docker compose down --volumes` elimina los datos del laboratorio y permite volver a empezar desde cero.
+Configuration travels through Git; Docker volume data stays on each computer. To stop the lab while keeping its data, run `docker compose down`. `docker compose down --volumes` deletes the lab data so you can start from scratch.
 
 ## Run on macOS
 
