@@ -14,19 +14,19 @@ SELECT content FROM (
 ) AS seed(content)
 WHERE NOT EXISTS (SELECT 1 FROM public.simple_sql_practice);
 
--- Small 3-dimensional vectors, easy to reason about by hand, for practicing
--- pgvector's distance operators (<=> cosine, <-> euclidean, <#> inner product).
+-- Small 2-dimensional vectors, easy to plot and reason about by hand, for
+-- practicing pgvector's distance operators (<=> cosine, <-> euclidean,
+-- <#> inner product) and deriving the angle between vectors with acos().
 CREATE TABLE IF NOT EXISTS public.simple_vector_practice (
     id SERIAL PRIMARY KEY,
     content TEXT NOT NULL,
-    embedding VECTOR(3) NOT NULL
+    embedding VECTOR(2) NOT NULL
 );
 
 INSERT INTO public.simple_vector_practice (content, embedding)
 SELECT content, embedding FROM (
     VALUES
-        ('unit vector on x', '[1,0,0]'::vector),
-        ('unit vector on y', '[0,1,0]'::vector),
-        ('diagonal in the xy-plane', '[1,1,0]'::vector)
+        ('A', '[1,0]'::vector),
+        ('B', '[3,4]'::vector)
 ) AS seed(content, embedding)
 WHERE NOT EXISTS (SELECT 1 FROM public.simple_vector_practice);

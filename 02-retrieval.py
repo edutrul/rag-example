@@ -6,7 +6,7 @@ from sentence_transformers import SentenceTransformer
 chunks = [
     "The dog is a domesticated animal.",
     "The dog lives with people.",
-    "It needs food and water.",
+    "The dog needs food and water.",
 ]
 
 model = SentenceTransformer("sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
