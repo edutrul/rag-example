@@ -114,3 +114,46 @@ The example database is bound to your computer at `localhost:55432`; its publish
 You can add sentences to `chunks` and rerun: only missing sentences are embedded and inserted. Previously saved sentences stay in the database even if removed from the Python list. Similarity scores are not confidence, and unrelated questions still return the nearest available chunks.
 
 Next, with a larger dataset, we can add an HNSW index and compare approximate retrieval against this exact search. See the [pgvector documentation](https://github.com/pgvector/pgvector) for vector storage, cosine distance, and indexes.
+
+## Exercise 05: terminal RAG with local Ollama
+
+`05-terminal-rag.py` uses your existing `rag_example` database on port `55432`
+and `public.rag_chunks` table (`id`, `content`, `embedding vector(384)`). It only
+reads existing rows. The table must already contain embeddings made with
+`sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2`; this exercise does
+not create or populate it. Exercise 03 uses a different table named `chunks`.
+
+With PostgreSQL and Ollama already running, and `gemma3:4b` installed in Ollama:
+
+```bash
+cd ~/Projects/rag-example
+.venv/bin/python -m pip install -r requirements.txt
+export PGUSER=rag
+export PGPASSWORD=rag_local
+.venv/bin/python 05-terminal-rag.py
+```
+
+The credentials above match this local lab. Credentials come from environment
+variables, not from the Python source. Optional `PGHOST`, `PGPORT`, and
+`PGDATABASE` default to `localhost`, `55432`, and `rag_example`. Alternatively,
+set `DATABASE_URL` with your PostgreSQL connection string; it takes precedence.
+No additional Python dependencies are needed.
+
+For each question, the terminal shows:
+
+1. The question embedding **Q**: 384 dimensions and its first five values.
+2. The top three chunks from PostgreSQL, their source IDs, and cosine similarity
+   scores (`1 - distance`). SQL uses `<=>` for cosine distance and a bound vector
+   parameter. Smaller distances mean closer vectors; higher similarities mean
+   closer matches, not greater answer confidence.
+3. The complete prompt containing the retrieved context and your question.
+4. The answer from `http://localhost:11434/api/generate` using `gemma3:4b`, followed
+   by source references. Citations such as `[3]` refer to `public.rag_chunks.id`.
+
+Try `What does the dog need?`, then `What is the dog's name?`. The prompt tells
+the model to use only the retrieved facts, cite its claims, and say when the
+context is insufficient. This is a prompt instruction, not a guarantee: inspect
+the chunks and citations to check the answer. Retrieval always returns the
+nearest available chunks, even when the question is unrelated. Each question is
+independent; conversation history is not sent. Press Enter on an empty question,
+Ctrl+D, or Ctrl+C to exit.
