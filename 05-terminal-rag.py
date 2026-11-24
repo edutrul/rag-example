@@ -14,17 +14,17 @@ OLLAMA_MODEL = "gemma3:4b"
 
 
 def connect_database():
-    # DATABASE_URL or standard PostgreSQL environment variables supply credentials.
+    # Defaults match the existing local lab; environment variables can override them.
     # Read-only transactions also prevent this exercise from changing stored data.
     options = {"connect_timeout": 5, "options": "-c default_transaction_read_only=on"}
     if os.environ.get("DATABASE_URL"):
         return psycopg.connect(os.environ["DATABASE_URL"], **options)
-    if not os.environ.get("PGUSER") or not os.environ.get("PGPASSWORD"):
-        raise ValueError("Set DATABASE_URL, or set both PGUSER and PGPASSWORD.")
     return psycopg.connect(
         host=os.environ.get("PGHOST", "localhost"),
         port=os.environ.get("PGPORT", "55432"),
         dbname=os.environ.get("PGDATABASE", "rag_example"),
+        user=os.environ.get("PGUSER", "rag"),
+        password=os.environ.get("PGPASSWORD", "rag_local"),
         **options,
     )
 

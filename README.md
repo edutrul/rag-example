@@ -128,15 +128,14 @@ With PostgreSQL and Ollama already running, and `gemma3:4b` installed in Ollama:
 ```bash
 cd ~/Projects/rag-example
 .venv/bin/python -m pip install -r requirements.txt
-export PGUSER=rag
-export PGPASSWORD=rag_local
 .venv/bin/python 05-terminal-rag.py
 ```
 
-The credentials above match this local lab. Credentials come from environment
-variables, not from the Python source. Optional `PGHOST`, `PGPORT`, and
-`PGDATABASE` default to `localhost`, `55432`, and `rag_example`. Alternatively,
-set `DATABASE_URL` with your PostgreSQL connection string; it takes precedence.
+The connection defaults match this local lab: user `rag`, password `rag_local`,
+host `localhost`, port `55432`, and database `rag_example`. No exports are needed.
+Optional `PGUSER`, `PGPASSWORD`, `PGHOST`, `PGPORT`, and `PGDATABASE` environment
+variables override those defaults. Alternatively, set `DATABASE_URL` with your
+PostgreSQL connection string; it takes precedence.
 No additional Python dependencies are needed.
 
 For each question, the terminal shows:
